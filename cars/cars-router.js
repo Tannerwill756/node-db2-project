@@ -19,7 +19,11 @@ router.get("/:id", (req, res) => {
     .where({ id: req.params.id })
     .first()
     .then((car) => {
-      res.status(200).json(car);
+      if (car) {
+        res.status(200).json(car);
+      } else {
+        res.status(404).json({ message: "car with that ID doesn't exist" });
+      }
     })
     .catch((err) => {
       res.status(500).json({ message: "Failed to get that car" });
@@ -67,5 +71,7 @@ function verifyBody(req, res, next) {
       .json({ message: "Please provide a vin, make, model, and mileage" });
   }
 }
+
+function verifyId(req, res, next) {}
 
 module.exports = router;
