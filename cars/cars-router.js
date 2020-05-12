@@ -42,14 +42,41 @@ router.post("/", verifyBody, (req, res) => {
     });
 });
 
+router.put("/:id", verifyBody, (req, res) => {
+  db("cars")
+    .where({ id: req.params.id })
+    .update(req.body)
+    .then((upd) => {
+      res.status(200).json(upd);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ messag: err.message });
+    });
+});
+
+router.delete("/:id", (req, res) => {
+  db("cars")
+    .where({ id: req.params.id })
+    .del()
+    .then((del) => {
+      if (del) {
+        res.status(201).json(del);
+      } else {
+        res.status(404).json({ message: "record not found by that id" });
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ messag: err.message });
+    });
+});
+
 function verifyBody(req, res, next) {
   if (req.body.make && req.body.vin && req.body.model && req.body.mileage) {
     if (req.body.vin.length === 17) {
       if (req.body.make.length < 129 && req.body.model.length < 129) {
-        if (
-          req.body.mileage.length < 1000000 &&
-          typeof req.body.mileage !== "string"
-        ) {
+        if (typeof req.body.mileage !== "string") {
           next();
         } else {
           res.status(404).json({
@@ -71,7 +98,5 @@ function verifyBody(req, res, next) {
       .json({ message: "Please provide a vin, make, model, and mileage" });
   }
 }
-
-function verifyId(req, res, next) {}
 
 module.exports = router;
